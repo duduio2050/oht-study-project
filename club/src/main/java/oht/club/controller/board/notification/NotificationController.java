@@ -1,15 +1,22 @@
 package oht.club.controller.board.notification;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
+import oht.club.controller.board.notification.dto.NotificationListRequest;
+import oht.club.service.notification.NotificationService;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-@Controller
 @Slf4j
 @RequestMapping("/notification")
+@RestController
+@RequiredArgsConstructor
 public class NotificationController {
+
+    private final NotificationService notificationService;
 
     // 공지사항 리스트
     @GetMapping
@@ -31,6 +38,29 @@ public class NotificationController {
         return "notification/edit";
     }
 
+    // 공지사항 insert 뷰
+    @PostMapping("/edit")
+    public String notificationInsert(@RequestBody NotificationListRequest notificationListRequest) {
+
+
+        log.info("title = {}, content = {}, createdAt = {}", notificationListRequest.getTitle(), notificationListRequest.getContent(), notificationListRequest.getCreatedAt());
+
+        String createdAt = notificationListRequest.getCreatedAt();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime dateTime = LocalDateTime.parse(createdAt, formatter);
+
+//        notificationListRequest.setContent(dateTime);
+
+        String insert = notificationService.join(notificationListRequest);
+
+        if(insert.equalsIgnoreCase("success")){
+            return "success";
+        }else{
+            return "fail";
+        }
+    }
+
     // 공지사항 업데이트 뷰
     @GetMapping("/edit/{notificationId}")
     public String notificationUpdateView() {
@@ -46,8 +76,8 @@ public class NotificationController {
     }
 
     // 공지사항 삭제
-    @PostMapping("/edit/{notificationId}")
+    @PostMapping("/delete/{notificationId}")
     public void notificationDelete() {
-
+        System.out.println(123);
     }
 }
